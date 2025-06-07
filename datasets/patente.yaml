@@ -1,0 +1,5 @@
+path: C:/Users/Alba Juan/Desktop/PTR/Proyecto Yolo/datasets
+train: images/train
+val: images/val
+names:
+  0: patente
