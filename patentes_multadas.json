@@ -1,0 +1,166 @@
+{
+  "AB123CD": {
+    "multas": [
+      { "fecha": "2024-01-15", "tipo": "Exceso de velocidad", "monto": 15000 },
+      { "fecha": "2024-02-20", "tipo": "Estacionamiento prohibido", "monto": 8000 }
+    ],
+    "total_multas": 2,
+    "monto_total": 23000,
+    "estado": "PENDIENTE"
+  },
+  "FEO219": {
+    "multas": [
+      { "fecha": "2024-03-10", "tipo": "Semáforo en rojo", "monto": 25000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 25000,
+    "estado": "PENDIENTE"
+  },
+  "MAC274": {
+    "multas": [
+      { "fecha": "2024-01-05", "tipo": "Zona de carga", "monto": 12000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 12000,
+    "estado": "PAGADA"
+  },
+  "XYZ999": {
+    "multas": [
+      { "fecha": "2024-04-12", "tipo": "Exceso de velocidad", "monto": 18000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 18000,
+    "estado": "PENDIENTE"
+  },
+  "AE460EP": {
+    "multas": [
+      { "fecha": "2024-05-03", "tipo": "Estacionamiento en doble fila", "monto": 7000 },
+      { "fecha": "2024-05-10", "tipo": "No respetar señal de PARE", "monto": 9500 }
+    ],
+    "total_multas": 2,
+    "monto_total": 16500,
+    "estado": "PENDIENTE"
+  },
+  "AEW321": {
+    "multas": [
+      { "fecha": "2024-02-14", "tipo": "Falta de cinturón", "monto": 6000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 6000,
+    "estado": "PAGADA"
+  },
+  "JKL456": {
+    "multas": [
+      { "fecha": "2024-06-01", "tipo": "Cruzar barrera baja", "monto": 20000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 20000,
+    "estado": "PENDIENTE"
+  },
+  "ZXC852": {
+    "multas": [
+      { "fecha": "2024-03-27", "tipo": "Exceso de velocidad", "monto": 14500 }
+    ],
+    "total_multas": 1,
+    "monto_total": 14500,
+    "estado": "PAGADA"
+  },
+  "PQR741": {
+    "multas": [
+      { "fecha": "2024-02-10", "tipo": "Estacionamiento prohibido", "monto": 8000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 8000,
+    "estado": "PENDIENTE"
+  },
+  "VBN369": {
+    "multas": [
+      { "fecha": "2024-04-01", "tipo": "Giro indebido", "monto": 10000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 10000,
+    "estado": "PAGADA"
+  },
+  "WAS159": {
+    "multas": [
+      { "fecha": "2024-05-15", "tipo": "Exceso de velocidad", "monto": 17000 },
+      { "fecha": "2024-06-02", "tipo": "No respetar semáforo", "monto": 21000 }
+    ],
+    "total_multas": 2,
+    "monto_total": 38000,
+    "estado": "PENDIENTE"
+  },
+  "GOL191": {
+    "multas": [
+      { "fecha": "2024-01-21", "tipo": "Luces apagadas", "monto": 5000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 5000,
+    "estado": "PAGADA"
+  },
+  "UYT963": {
+    "multas": [
+      { "fecha": "2024-03-18", "tipo": "Circular sin casco", "monto": 11000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 11000,
+    "estado": "PENDIENTE"
+  },
+  "GHJ258": {
+    "multas": [
+      { "fecha": "2024-04-20", "tipo": "Exceso de velocidad", "monto": 19000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 19000,
+    "estado": "PENDIENTE"
+  },
+  "TRE456": {
+    "multas": [
+      { "fecha": "2024-05-07", "tipo": "Estacionamiento en vereda", "monto": 8500 }
+    ],
+    "total_multas": 1,
+    "monto_total": 8500,
+    "estado": "PAGADA"
+  },
+  "CVC852": {
+    "multas": [
+      { "fecha": "2024-06-12", "tipo": "Conducir usando celular", "monto": 12000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 12000,
+    "estado": "PENDIENTE"
+  },
+  "MNB147": {
+    "multas": [
+      { "fecha": "2024-01-30", "tipo": "Estacionamiento en rampa", "monto": 9000 },
+      { "fecha": "2024-03-15", "tipo": "Cruzar en rojo", "monto": 23000 }
+    ],
+    "total_multas": 2,
+    "monto_total": 32000,
+    "estado": "PENDIENTE"
+  },
+  "QWE369": {
+    "multas": [
+      { "fecha": "2024-04-11", "tipo": "Falta de seguro", "monto": 15000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 15000,
+    "estado": "PAGADA"
+  },
+  "PLM951": {
+    "multas": [
+      { "fecha": "2024-02-02", "tipo": "Frenos defectuosos", "monto": 18000 }
+    ],
+    "total_multas": 1,
+    "monto_total": 18000,
+    "estado": "PENDIENTE"
+  },
+  "NBV753": {
+    "multas": [
+      { "fecha": "2024-06-05", "tipo": "No respetar prioridad de paso", "monto": 13500 }
+    ],
+    "total_multas": 1,
+    "monto_total": 13500,
+    "estado": "PAGADA"
+  }
+}
