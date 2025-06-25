@@ -77,6 +77,10 @@ if not cap.isOpened():
 
 print("📷 Cámara iniciada. Presioná 'q' para salir.")
 
+contador_patentes = {}
+ultima_patente = None
+umbral_repeticiones = 3
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -84,6 +88,8 @@ while True:
         break
 
     results = model(frame, conf=0.1)[0]
+
+    patente_encontrada = False
 
     for box in results.boxes:
         x1, y1, x2, y2 = map(int, box.xyxy[0])
@@ -106,13 +112,30 @@ while True:
             texto_detectado = ocr_easyocr_manual(img_proc)
 
             if texto_detectado:
+                # Contador de repeticiones
+                if texto_detectado == ultima_patente:
+                    contador_patentes[texto_detectado] = contador_patentes.get(texto_detectado, 1) + 1
+                else:
+                    contador_patentes = {texto_detectado: 1}
+                    ultima_patente = texto_detectado
+
+                print(f"Patente '{texto_detectado}' detectada {contador_patentes[texto_detectado]} veces")
+
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, texto_detectado, (x1, y1 - 10), 
+                cv2.putText(frame, texto_detectado, (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                if contador_patentes[texto_detectado] >= umbral_repeticiones:
+                    print(f"✅ Patente validada después de {umbral_repeticiones} repeticiones: {texto_detectado}")
+                    patente_encontrada = True
+                    break
             else:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
     cv2.imshow("Detector de Patentes", frame)
+
+    if patente_encontrada:
+        break
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
