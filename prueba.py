@@ -6,6 +6,7 @@ from PIL import Image, ImageEnhance
 import easyocr
 import time
 import os
+import json
 
 # Inicializar EasyOCR
 reader = easyocr.Reader(['en'], gpu=True)
@@ -18,6 +19,105 @@ model = YOLO(model_path)
 if not os.path.exists("capturas_patentes"):
     os.makedirs("capturas_patentes")
 
+class BaseDatosMultas:
+    def __init__(self, archivo_db="patentes_multadas.json"):
+        self.archivo_db = archivo_db
+        self.patentes_multadas = self.cargar_base_datos()
+    
+    def cargar_base_datos(self):
+        """Carga la base de datos de patentes multadas desde un archivo JSON"""
+        try:
+            if os.path.exists(self.archivo_db):
+                with open(self.archivo_db, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            else:
+                # Crear archivo con datos de ejemplo si no existe
+                datos_ejemplo = {
+                    "AB123CD": {
+                        "multas": [
+                            {"fecha": "2024-01-15", "tipo": "Exceso de velocidad", "monto": 15000},
+                            {"fecha": "2024-02-20", "tipo": "Estacionamiento prohibido", "monto": 8000}
+                        ],
+                        "total_multas": 2,
+                        "monto_total": 23000,
+                        "estado": "PENDIENTE"
+                    },
+                    "XYZ789": {
+                        "multas": [
+                            {"fecha": "2024-03-10", "tipo": "Semáforo en rojo", "monto": 25000}
+                        ],
+                        "total_multas": 1,
+                        "monto_total": 25000,
+                        "estado": "PENDIENTE"
+                    },
+                    "DEF456": {
+                        "multas": [
+                            {"fecha": "2024-01-05", "tipo": "Zona de carga", "monto": 12000}
+                        ],
+                        "total_multas": 1,
+                        "monto_total": 12000,
+                        "estado": "PAGADA"
+                    }
+                }
+                self.guardar_base_datos(datos_ejemplo)
+                print(f"📋 Base de datos creada con ejemplos en: {self.archivo_db}")
+                return datos_ejemplo
+        except Exception as e:
+            print(f"⚠️ Error al cargar base de datos: {e}")
+            return {}
+    
+    def guardar_base_datos(self, datos):
+        """Guarda la base de datos en el archivo JSON"""
+        try:
+            with open(self.archivo_db, 'w', encoding='utf-8') as f:
+                json.dump(datos, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"⚠️ Error al guardar base de datos: {e}")
+    
+    def consultar_patente(self, patente):
+        """Consulta si una patente tiene multas"""
+        patente_limpia = patente.replace(" ", "").replace("-", "").upper()
+        
+        if patente_limpia in self.patentes_multadas:
+            info = self.patentes_multadas[patente_limpia]
+            return {
+                "tiene_multas": True,
+                "info": info
+            }
+        else:
+            return {
+                "tiene_multas": False,
+                "info": None
+            }
+    
+    def agregar_patente_multada(self, patente, tipo_multa, monto, fecha=None):
+        """Agrega una nueva multa a la base de datos"""
+        if fecha is None:
+            fecha = time.strftime("%Y-%m-%d")
+        
+        patente_limpia = patente.replace(" ", "").replace("-", "").upper()
+        
+        if patente_limpia not in self.patentes_multadas:
+            self.patentes_multadas[patente_limpia] = {
+                "multas": [],
+                "total_multas": 0,
+                "monto_total": 0,
+                "estado": "PENDIENTE"
+            }
+        
+        nueva_multa = {
+            "fecha": fecha,
+            "tipo": tipo_multa,
+            "monto": monto
+        }
+        
+        self.patentes_multadas[patente_limpia]["multas"].append(nueva_multa)
+        self.patentes_multadas[patente_limpia]["total_multas"] += 1
+        self.patentes_multadas[patente_limpia]["monto_total"] += monto
+        
+        self.guardar_base_datos(self.patentes_multadas)
+        print(f"✅ Multa agregada para patente {patente_limpia}")
+
 class DetectorPatentes:
     def __init__(self):
         self.estado = "BUSCANDO"  # BUSCANDO, DETECTADA, PROCESANDO, COMPLETADO
@@ -27,7 +127,11 @@ class DetectorPatentes:
         self.imagen_capturada = None
         self.resultado_final = None
         self.tiempo_resultado = 0  # Timestamp cuando se completa la detección
-        self.duracion_mostrar = 3.0  # Segundos para mostrar el resultado
+        self.duracion_mostrar = 5.0  # Segundos para mostrar el resultado (aumentado para mostrar info de multas)
+        
+        # Inicializar base de datos de multas
+        self.db_multas = BaseDatosMultas()
+        self.info_multa = None
         
     def validar_patente(self, texto):
         texto = texto.replace(" ", "").replace("-", "").upper()
@@ -196,6 +300,23 @@ class DetectorPatentes:
         
         return None
     
+    def consultar_multas(self, patente):
+        """Consulta si la patente tiene multas y guarda la información"""
+        resultado = self.db_multas.consultar_patente(patente)
+        self.info_multa = resultado
+        
+        if resultado["tiene_multas"]:
+            info = resultado["info"]
+            print(f"🚨 PATENTE CON MULTAS: {patente}")
+            print(f"   Total multas: {info['total_multas']}")
+            print(f"   Monto total: ${info['monto_total']:,}")
+            print(f"   Estado: {info['estado']}")
+            
+            for i, multa in enumerate(info["multas"], 1):
+                print(f"   Multa {i}: {multa['tipo']} - ${multa['monto']:,} ({multa['fecha']})")
+        else:
+            print(f"✅ PATENTE LIMPIA: {patente} - Sin multas registradas")
+    
     def reiniciar_para_nueva_busqueda(self):
         """Reinicia el detector para buscar una nueva patente"""
         self.estado = "BUSCANDO"
@@ -204,7 +325,50 @@ class DetectorPatentes:
         self.imagen_capturada = None
         self.resultado_final = None
         self.tiempo_resultado = 0
+        self.info_multa = None
         print("🔄 Buscando nueva patente...")
+    
+    def dibujar_info_multas(self, frame):
+        """Dibuja la información de multas en el frame"""
+        if not self.info_multa:
+            return frame
+        
+        y_pos = 60
+        line_height = 35
+        
+        # Dibujar patente detectada
+        cv2.putText(frame, f"PATENTE: {self.resultado_final}", 
+                   (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 3)
+        y_pos += line_height
+        
+        if self.info_multa["tiene_multas"]:
+            info = self.info_multa["info"]
+            
+            # Estado de multa (color rojo para multas pendientes)
+            color = (0, 0, 255) if info["estado"] == "PENDIENTE" else (0, 165, 255)  # Rojo o naranja
+            cv2.putText(frame, f"MULTADA - {info['estado']}", 
+                       (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
+            y_pos += line_height
+            
+            # Información de multas
+            cv2.putText(frame, f"Multas: {info['total_multas']} | Total: ${info['monto_total']:,}", 
+                       (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            y_pos += line_height - 5
+            
+            # Mostrar primera multa como ejemplo
+            if info["multas"]:
+                primera_multa = info["multas"][0]
+                cv2.putText(frame, f"Ultima: {primera_multa['tipo'][:25]}...", 
+                           (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (100, 100, 255), 2)
+        else:
+            # Patente sin multas (color verde)
+            cv2.putText(frame, "SIN MULTAS", 
+                       (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+            y_pos += line_height
+            cv2.putText(frame, "Patente limpia", 
+                       (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        
+        return frame
     
     def procesar_frame(self, frame):
         """Procesa un frame del video según el estado actual"""
@@ -215,11 +379,12 @@ class DetectorPatentes:
             tiempo_restante = self.duracion_mostrar - tiempo_transcurrido
             
             if tiempo_restante > 0:
-                # Mostrar resultado con countdown
-                cv2.putText(frame, f"PATENTE: {self.resultado_final}", 
-                           (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                # Dibujar información de multas
+                frame = self.dibujar_info_multas(frame)
+                
+                # Contador regresivo
                 cv2.putText(frame, f"Nueva busqueda en: {tiempo_restante:.1f}s", 
-                           (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                           (10, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
                 return frame, False
             else:
                 # Tiempo terminado, reiniciar automáticamente
@@ -284,6 +449,7 @@ class DetectorPatentes:
             
             if resultado:
                 self.resultado_final = resultado
+                self.consultar_multas(resultado)  # Consultar multas aquí
                 self.estado = "COMPLETADO"
                 self.tiempo_resultado = time.time()  # Marcar el tiempo cuando se completa
                 print(f"✅ PATENTE DETECTADA: {resultado}")
@@ -310,9 +476,10 @@ def main():
     
     detector = DetectorPatentes()
     
-    print("📷 Detector de patentes iniciado")
+    print("📷 Detector de patentes con consulta de multas iniciado")
     print("🎯 Posiciona la patente frente a la cámara")
     print("🔄 El detector buscará automáticamente nuevas patentes")
+    print("📋 Base de datos de multas cargada")
     print("⌨️ Presiona 'q' para salir")
     
     while True:
@@ -325,7 +492,7 @@ def main():
         frame_procesado, terminado = detector.procesar_frame(frame)
         
         # Mostrar frame
-        cv2.imshow("Detector de Patentes - Búsqueda Continua", frame_procesado)
+        cv2.imshow("Detector de Patentes - Con Consulta de Multas", frame_procesado)
         
         # Control de teclado
         key = cv2.waitKey(1) & 0xFF
