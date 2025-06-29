@@ -234,7 +234,7 @@ class DetectorPatentes:
             # Redimensionar
             resized = cv2.resize(gray, None, fx=escala, fy=escala, interpolation=cv2.INTER_CUBIC)
             
-            # Aplicar filtros
+            # Filtrado bilateral para reducción de ruido
             filtered = cv2.bilateralFilter(resized, 11, 17, 17)
             
             # Mejorar contraste
