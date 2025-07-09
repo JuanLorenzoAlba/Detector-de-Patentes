@@ -9,10 +9,10 @@ import os
 import json
 
 # Inicializar EasyOCR
-reader = easyocr.Reader(['en'], gpu=True)
+reader = easyocr.Reader(['en'], gpu=False)
 
 # Cargar modelo YOLO
-model_path = r"C:\Users\Alba Juan\Desktop\PTR\Proyecto Yolo\runs\detect\train\weights\last.pt"
+model_path = r"C:\ProyectosVarios\Detector de patentes\Detector-de-patentes\runs\detect\train\weights\last.pt"
 model = YOLO(model_path)
 
 # Crear carpeta para guardar capturas
